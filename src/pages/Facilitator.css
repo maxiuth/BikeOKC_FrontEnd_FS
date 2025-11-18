@@ -244,3 +244,25 @@
 .action-form > * {
   margin-bottom: 0.5rem;
 }
+
+/** Floating Header **/
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: gray;
+  pointer-events: none;
+  transition: 0.2s;
+}
+
+.input-wrapper input:not(:placeholder-shown) + label,
+.input-wrapper input:focus + label {
+  top: -8px;
+  font-size: 2ch;
+  color: #555;
+}

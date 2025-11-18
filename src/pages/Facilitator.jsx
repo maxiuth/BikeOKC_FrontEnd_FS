@@ -14,6 +14,7 @@ export default function Facilitator() {
   const [events, setEvents] = useState([]);
   const [expandedEventId, setExpandedEventId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editingEvent, setEditingEvent] = useState(null); // edit event
 
   // Dropdown sections
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -47,7 +48,7 @@ export default function Facilitator() {
     last_name: "",
     email: "",
     phone: "",
-    interest: "repair",
+    interest: "",
     preferred_school: "",
   });
 
@@ -166,6 +167,23 @@ export default function Facilitator() {
       }
     } catch (err) {
       console.error("Delete error:", err);
+    }
+  }
+
+  // Edit An Event
+  async function handleEditEvent(e, id) {
+    e.preventDefault();
+
+    try {
+        const res = await fetch(`${API}/volunteers/facilitator/${userId}/events/${id}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+                }
+            }
+        );
     }
   }
 
@@ -381,33 +399,44 @@ export default function Facilitator() {
                   setNewEvent({ ...newEvent, endLocation: e.target.value })
                 }
               />
-              <input
-                type="date"
-                placeholder="Event Date"
-                required
-                value={newEvent.date}
-                onChange={(e) =>
-                  setNewEvent({ ...newEvent, date: e.target.value })
-                }
-              />
-              <input
-                type="time"
-                placeholder="Start Time"
-                required
-                value={newEvent.startTime}
-                onChange={(e) =>
-                  setNewEvent({ ...newEvent, startTime: e.target.value })
-                }
-              />
-              <input
-                type="time"
-                placeholder="End Time"
-                required
-                value={newEvent.endTime}
-                onChange={(e) =>
-                  setNewEvent({ ...newEvent, endTime: e.target.value })
-                }
-              />
+              <div className="input-wrapper">
+                <input
+                  type="date"
+                  placeholder=" "
+                  required
+                  value={newEvent.date}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, date: e.target.value })
+                  }
+                />
+                <label>Event Date</label>
+              </div>
+
+              <div className="input-wrapper">
+                <input
+                  type="time"
+                  placeholder=" "
+                  required
+                  value={newEvent.startTime}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, startTime: e.target.value })
+                  }
+                />
+                <label>Start Time</label>
+              </div>
+
+              <div className="input-wrapper">
+                <input
+                  type="time"
+                  placeholder=" "
+                  required
+                  value={newEvent.endTime}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, endTime: e.target.value })
+                  }
+                />
+                <label>End Time</label>
+              </div>
 
               <button className="action-btn">Add Event</button>
             </form>
