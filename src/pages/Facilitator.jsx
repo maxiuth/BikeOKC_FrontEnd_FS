@@ -383,6 +383,7 @@ export default function Facilitator() {
               />
               <input
                 type="date"
+                placeholder="Event Date"
                 required
                 value={newEvent.date}
                 onChange={(e) =>
@@ -391,6 +392,7 @@ export default function Facilitator() {
               />
               <input
                 type="time"
+                placeholder="Start Time"
                 required
                 value={newEvent.startTime}
                 onChange={(e) =>
@@ -399,6 +401,7 @@ export default function Facilitator() {
               />
               <input
                 type="time"
+                placeholder="End Time"
                 required
                 value={newEvent.endTime}
                 onChange={(e) =>
