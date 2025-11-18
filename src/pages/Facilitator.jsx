@@ -14,6 +14,11 @@ export default function Facilitator() {
   const [events, setEvents] = useState([]);
   const [expandedEventId, setExpandedEventId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editingEvent, setEditingEvent] = useState(null); // edit event
+
+  function handleEditEvent(event) {
+    setEditingEvent(event); // loads event into form
+  }
 
   // Dropdown sections
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -47,7 +52,7 @@ export default function Facilitator() {
     last_name: "",
     email: "",
     phone: "",
-    interest: "repair",
+    interest: "",
     preferred_school: "",
   });
 
@@ -167,6 +172,59 @@ export default function Facilitator() {
     } catch (err) {
       console.error("Delete error:", err);
     }
+  }
+
+  // Edit An Event
+  async function handleUpdateEvent(e) {
+    e.preventDefault();
+    console.log("Updating event:", editingEvent);
+
+    const id = editingEvent.id;
+    console.log("ID being sent:", id);
+
+    if (!id) {
+      console.error("No event ID found!");
+      return;
+    }
+
+    const res = await fetch(
+      `${API}/volunteers/facilitator/${userId}/events/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editingEvent),
+      }
+    );
+
+    const text = await res.text(); // safer than .json()
+
+    if (!res.ok) {
+      console.error("Update failed:", text);
+      alert("Failed to update event.");
+      return;
+    }
+
+    const updated = JSON.parse(text);
+
+    //setEvents(events.map((ev) => (ev.id === id ? updated : ev)));
+
+    // setEvents((prev) =>
+    //   prev.map((ev) => (ev.id === updated.id ? updated : ev))
+    // );
+
+    setEvents((prev) =>
+      prev.map((ev) =>
+        ev.id === updated.id
+          ? { ...updated } // ensures new object reference
+          : ev
+      )
+    );
+
+    setEditingEvent(null);
+    alert("Event updated!");
   }
 
   /* ================================
@@ -290,6 +348,87 @@ export default function Facilitator() {
       <div className="event-grid">
         <h3>All Events</h3>
 
+        {editingEvent && (
+          <form
+            onSubmit={handleUpdateEvent}
+            className="edit-form"
+            key={editingEvent.id}
+          >
+            <h3>Edit Event</h3>
+
+            <input
+              type="text"
+              value={editingEvent.title}
+              onChange={(e) =>
+                setEditingEvent({ ...editingEvent, title: e.target.value })
+              }
+            />
+
+            <input
+              type="text"
+              value={editingEvent.type}
+              onChange={(e) =>
+                setEditingEvent({ ...editingEvent, type: e.target.value })
+              }
+            />
+
+            <input
+              type="text"
+              value={editingEvent.start_location}
+              onChange={(e) =>
+                setEditingEvent({
+                  ...editingEvent,
+                  start_location: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="text"
+              value={editingEvent.end_location}
+              onChange={(e) =>
+                setEditingEvent({
+                  ...editingEvent,
+                  end_location: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="date"
+              value={
+                editingEvent?.date
+                  ? new Date(editingEvent.date).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) =>
+                setEditingEvent({ ...editingEvent, date: e.target.value })
+              }
+            />
+
+            <input
+              type="time"
+              value={editingEvent.start_time}
+              onChange={(e) =>
+                setEditingEvent({ ...editingEvent, start_time: e.target.value })
+              }
+            />
+
+            <input
+              type="time"
+              value={editingEvent.end_time}
+              onChange={(e) =>
+                setEditingEvent({ ...editingEvent, end_time: e.target.value })
+              }
+            />
+
+            <button type="submit">Save</button>
+            <button type="button" onClick={() => setEditingEvent(null)}>
+              Cancel
+            </button>
+          </form>
+        )}
+
         {events.map((event) => (
           <div
             key={event.id}
@@ -328,6 +467,16 @@ export default function Facilitator() {
                   }}
                 >
                   Delete Event
+                </button>
+
+                <button
+                  className="edit-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditEvent(event);
+                  }}
+                >
+                  Edit Event
                 </button>
               </div>
             )}
@@ -381,33 +530,44 @@ export default function Facilitator() {
                   setNewEvent({ ...newEvent, endLocation: e.target.value })
                 }
               />
-              <input
-                type="date"
-                placeholder="Event Date"
-                required
-                value={newEvent.date}
-                onChange={(e) =>
-                  setNewEvent({ ...newEvent, date: e.target.value })
-                }
-              />
-              <input
-                type="time"
-                placeholder="Start Time"
-                required
-                value={newEvent.startTime}
-                onChange={(e) =>
-                  setNewEvent({ ...newEvent, startTime: e.target.value })
-                }
-              />
-              <input
-                type="time"
-                placeholder="End Time"
-                required
-                value={newEvent.endTime}
-                onChange={(e) =>
-                  setNewEvent({ ...newEvent, endTime: e.target.value })
-                }
-              />
+              <div className="input-wrapper">
+                <input
+                  type="date"
+                  placeholder=" "
+                  required
+                  value={newEvent.date}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, date: e.target.value })
+                  }
+                />
+                <label>Event Date</label>
+              </div>
+
+              <div className="input-wrapper">
+                <input
+                  type="time"
+                  placeholder=" "
+                  required
+                  value={newEvent.startTime}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, startTime: e.target.value })
+                  }
+                />
+                <label>Start Time</label>
+              </div>
+
+              <div className="input-wrapper">
+                <input
+                  type="time"
+                  placeholder=" "
+                  required
+                  value={newEvent.endTime}
+                  onChange={(e) =>
+                    setNewEvent({ ...newEvent, endTime: e.target.value })
+                  }
+                />
+                <label>End Time</label>
+              </div>
 
               <button className="action-btn">Add Event</button>
             </form>
